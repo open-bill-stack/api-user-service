@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - create-init-api
+  workflow_dispatch:
+
 
 permissions:
   contents: read # This is required for actions/checkout
