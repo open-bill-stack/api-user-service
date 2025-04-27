@@ -45,4 +45,3 @@ jobs:
       JOB_RUNS_ON: self-hosted
       GO_VERSION: "1.24"
 
-
