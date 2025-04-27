@@ -1,0 +1,46 @@
+name: Build
+on:
+  push:
+    branches:
+      - create-init-api
+
+permissions:
+  contents: read # This is required for actions/checkout
+  packages: write # This is required for save docker images
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-build
+  cancel-in-progress: true
+
+
+jobs:
+  vars:
+    name: Generation vars
+    runs-on: self-hosted
+    environment: ${{ github.ref_name }}
+    steps:
+      # Logic
+      - name: Set prefix
+        run: echo 1
+
+  test-dockerfile:
+    needs: [ vars ]
+    uses: open-bill-stack/github-workflows/.github/workflows/dockerfile-test.yaml@develop
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event.workflow_call.workflow_file }}-test-dockerfile
+      cancel-in-progress: true
+    with:
+      JOB_RUNS_ON: self-hosted
+      HADOLINT_CHECK_ENABLE: true
+
+  test-go:
+    needs: [ vars ]
+    uses: open-bill-stack/github-workflows/.github/workflows/go-test.yaml@develop
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event.workflow_call.workflow_file }}-test-golang
+      cancel-in-progress: true
+    with:
+      JOB_RUNS_ON: self-hosted
+      GO_VERSION: "1.24"
+
+

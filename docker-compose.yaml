@@ -1,0 +1,22 @@
+name: stack-api-user-service
+
+services:
+  api:
+    build:
+      dockerfile: Dockerfile
+      context: .
+      target: prod
+      args:
+        - ARCH=arm64
+        - OS=linux
+      platforms:
+        - linux/arm64
+
+  db:
+    image: postgres:17.4-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: yes
+      POSTGRES_USER: admin
+      POSTGRES_DB: admin
