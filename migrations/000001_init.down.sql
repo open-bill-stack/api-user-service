@@ -1,0 +1,9 @@
+BEGIN;
+
+DROP TABLE IF EXISTS credentials;
+DROP TABLE IF EXISTS user_metadata;
+DROP INDEX IF EXISTS idx_users_phone;
+DROP TABLE IF EXISTS users;
+DROP EXTENSION IF EXISTS "pgcrypto";
+
+COMMIT;
