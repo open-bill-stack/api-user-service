@@ -2,7 +2,7 @@ name: Build
 on:
   push:
     branches:
-      - create-init-api
+      - develop
   workflow_dispatch:
 
 
