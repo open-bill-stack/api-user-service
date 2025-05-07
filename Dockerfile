@@ -1,5 +1,5 @@
 # BASE IMAGE
-FROM golang:1.24.2-alpine3.21 AS build-base
+FROM golang:1.24.3-alpine3.21 AS build-base
 
 WORKDIR /code
 
