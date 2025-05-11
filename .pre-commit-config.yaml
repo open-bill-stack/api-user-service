@@ -7,16 +7,18 @@ repos:
         language: system
         pass_filenames: false
 
-  - repo: https://github.com/AleksaC/hadolint-py
-    rev: v2.12.1b3
+  - repo: local
     hooks:
       - id: hadolint
+        name: hadolint
+        language: docker_image
+        entry: hadolint/hadolint:latest-alpine hadolint
         types: ["dockerfile", "file", "non-executable", "text"]
+
 
   - repo: https://github.com/rhysd/actionlint
     rev: v1.7.7
     hooks:
-      - id: actionlint
-        language: golang
+      - id: actionlint-docker
         types: ["file", "non-executable", "text", "yaml"]
         files: ^.github/workflows
