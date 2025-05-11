@@ -1,13 +1,14 @@
 package jwt
 
 import (
+	"api-user-service/internal/service/jwt"
 	"github.com/gofiber/fiber/v2"
 )
 
 type Config struct {
 
 	// Optional. Default: nil.
-	Validator func(string) bool
+	Validator func(string) (*jwt.CustomClaims, bool)
 
 	// Unauthorized defines the response body for unauthorized responses.
 	// By default it will return with a 401 Unauthorized and the correct WWW-Auth header

@@ -1,12 +1,13 @@
 package jwt
 
-import "github.com/golang-jwt/jwt/v5"
+import golang "github.com/golang-jwt/jwt/v5"
 
 type ExtendClaims struct {
-	UserID string `json:"user_id"`
+	UserID         string `json:"user_id"`
+	IsRefreshToken bool   `json:"is_refresh_token"`
 }
 
-type Claims struct {
-	jwt.RegisteredClaims
+type CustomClaims struct {
+	golang.RegisteredClaims
 	ExtendClaims
 }
