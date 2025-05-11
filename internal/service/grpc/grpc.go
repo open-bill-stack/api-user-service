@@ -12,7 +12,7 @@ import (
 	"net"
 )
 
-type Params struct {
+type ParamsRun struct {
 	fx.In
 
 	GrpcApp      *grpc.Server
@@ -20,17 +20,23 @@ type Params struct {
 	Log          *zap.Logger
 	Config       *config.Config
 }
+type Params struct {
+	fx.In
+
+	Log    *zap.Logger
+	Config *config.Config
+}
 type Result struct {
 	fx.Out
 	GrpcApp      *grpc.Server
 	GrpcListener *net.Listener
 }
 
-func NewGrpcApp() (Result, error) {
+func NewGrpcApp(p Params) (Result, error) {
 	grpcServer := grpc.NewServer()
 	reflection.Register(grpcServer)
 
-	grpcListener, err := net.Listen("tcp", fmt.Sprintf(":50051"))
+	grpcListener, err := net.Listen("tcp", fmt.Sprintf(":%d", p.Config.App.GrpcPort))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
@@ -41,7 +47,7 @@ func NewGrpcApp() (Result, error) {
 	}, nil
 }
 
-func RunGrpcApp(lc fx.Lifecycle, p Params) {
+func RunGrpcApp(lc fx.Lifecycle, p ParamsRun) {
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			go func() {
@@ -50,7 +56,7 @@ func RunGrpcApp(lc fx.Lifecycle, p Params) {
 					p.Log.Panic("Error starting GRPC server:", zap.Error(err))
 				}
 			}()
-			p.Log.Info(fmt.Sprintf("GRPC server started on:%d", 50051))
+			p.Log.Info(fmt.Sprintf("GRPC server started on:%d", p.Config.App.GrpcPort))
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
