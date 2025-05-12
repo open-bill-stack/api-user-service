@@ -11,7 +11,7 @@ import (
 type Result struct {
 	fx.Out
 
-	Router router.Router `group:"routes"`
+	Router router.Router `group:"httpRoutes"`
 }
 type Params struct {
 	fx.In

@@ -16,7 +16,7 @@ type Params struct {
 	HttpApp *fiber.App
 	Log     *zap.Logger
 	Config  *config.Config
-	Router  []router.Router `group:"routes"`
+	Router  []router.Router `group:"httpRoutes"`
 }
 type Result struct {
 	fx.Out

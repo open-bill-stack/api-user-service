@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"api-user-service/internal/service/config"
+	"api-user-service/internal/service/grpc/router"
 	"context"
 	"fmt"
 	"go.uber.org/fx"
@@ -19,6 +20,7 @@ type ParamsRun struct {
 	GrpcListener *net.Listener
 	Log          *zap.Logger
 	Config       *config.Config
+	Router       []router.Router `group:"grpcRoutes"`
 }
 type Params struct {
 	fx.In
@@ -50,6 +52,9 @@ func NewGrpcApp(p Params) (Result, error) {
 func RunGrpcApp(lc fx.Lifecycle, p ParamsRun) {
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
+			for _, r := range p.Router {
+				r.Register(p.GrpcApp)
+			}
 			go func() {
 				p.Log.Debug("starting gRPC server")
 				if err := (*p.GrpcApp).Serve(*p.GrpcListener); err != nil {

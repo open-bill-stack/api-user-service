@@ -27,3 +27,6 @@ func (s *Service) Create(ctx context.Context, input CreateUser) (*User, error) {
 func (s *Service) ExistsByEmail(ctx context.Context, email string) (bool, error) {
 	return s.repo.ExistsByEmail(ctx, email)
 }
+func (s *Service) ExistsByUUID(ctx context.Context, uuid string) (bool, error) {
+	return s.repo.ExistsByUUID(ctx, uuid)
+}

@@ -9,21 +9,21 @@ import (
 	"go.uber.org/zap"
 )
 
-type Handle struct {
+type HttpHandle struct {
 	log     *zap.Logger
 	service *Service
 }
 
-func NewHandler(p Params) (Result, error) {
-	return Result{
-		Router: &Handle{
+func NewHttpHandler(p Params) (HttpResult, error) {
+	return HttpResult{
+		Router: &HttpHandle{
 			log:     p.Log,
 			service: p.Service,
 		},
 	}, nil
 }
 
-func (h *Handle) Register(app *fiber.App) {
+func (h *HttpHandle) Register(app *fiber.App) {
 	app.Post("/user", h.CreateUser)
 
 	group := app.Group("/user")
@@ -33,13 +33,13 @@ func (h *Handle) Register(app *fiber.App) {
 	group.Delete("", h.DeleteUser)
 }
 
-func (h *Handle) GetUser(c *fiber.Ctx) error {
+func (h *HttpHandle) GetUser(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "OK"})
 }
-func (h *Handle) UpdateUser(c *fiber.Ctx) error {
+func (h *HttpHandle) UpdateUser(c *fiber.Ctx) error {
 	return nil
 }
-func (h *Handle) CreateUser(c *fiber.Ctx) error {
+func (h *HttpHandle) CreateUser(c *fiber.Ctx) error {
 	var req structure.CreateUserRequest
 	var validate *validator.Validate
 	validate = validator.New(validator.WithRequiredStructEnabled())
@@ -84,6 +84,6 @@ func (h *Handle) CreateUser(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "User created successfully"})
 }
 
-func (h *Handle) DeleteUser(c *fiber.Ctx) error {
+func (h *HttpHandle) DeleteUser(c *fiber.Ctx) error {
 	return nil
 }

@@ -1,0 +1,17 @@
+syntax = "proto3";
+package user;
+option go_package = "api-user-service/internal/module/user/grpc";
+
+service UserService {
+  // Перевірка, чи існує користувач за ID
+  rpc ExistsByID(ExistsByIDRequest) returns (ExistsByIDResponse);
+}
+// Запит перевірки по ID
+message ExistsByIDRequest {
+  string user_id = 1;
+}
+
+// Відповідь на перевірку по ID
+message ExistsByIDResponse {
+  bool exists = 1;
+}

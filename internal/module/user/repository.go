@@ -9,4 +9,5 @@ type Repository interface {
 	GetCredentialsByEmail(ctx context.Context, email string) (*Credential, error)
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 	ExistsByEmail(ctx context.Context, email string) (bool, error)
+	ExistsByUUID(ctx context.Context, uuid string) (bool, error)
 }

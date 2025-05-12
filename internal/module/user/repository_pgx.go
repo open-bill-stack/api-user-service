@@ -84,3 +84,11 @@ func (r *sqlRepo) ExistsByEmail(ctx context.Context, email string) (bool, error)
 	}
 	return exists, nil
 }
+func (r *sqlRepo) ExistsByUUID(ctx context.Context, uuid string) (bool, error) {
+	var exists bool
+	query := `SELECT EXISTS(SELECT 1 FROM users WHERE id = $1)`
+	if err := r.db.QueryRow(ctx, query, uuid).Scan(&exists); err != nil {
+		return false, err
+	}
+	return exists, nil
+}
