@@ -85,5 +85,32 @@ func (h *HttpHandle) CreateUser(c *fiber.Ctx) error {
 }
 
 func (h *HttpHandle) DeleteUser(c *fiber.Ctx) error {
-	return nil
+	var req structure.UserRequest
+	// Парсимо JSON з тіла запиту
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid request body",
+		})
+	}
+
+	status, err := h.service.ExistsByUUID(c.Context(), req.UUID)
+	if err != nil {
+		return err
+	}
+	if !status {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "User with this UUID does not exist",
+		})
+	}
+
+	status, err = h.service.DeleteByUUID(c.Context(), req.UUID)
+	if err != nil {
+		return err
+	}
+	if !status {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Error deleting user",
+		})
+	}
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "User deleted successfully"})
 }

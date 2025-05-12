@@ -1,3 +1,6 @@
+# Завантажуємо змінні з .env у середовище
+include .env
+export $(shell sed 's/=.*//' .env)
 # Makefile для компіляції .proto файлів за допомогою protoc
 
 # Змінні для налаштувань
@@ -17,3 +20,12 @@ all: generate
 generate:
 	find . -type f -name "*.proto" -exec $(PROTOC) $(GO_OUT) $(GO_OPT) $(GO_GRPC_OUT) $(GO_GRPC_OPT) {} +
 
+migrate-up:
+	@echo "Running migrations..."
+	migrate -path ./migrations -database "$(DATABASE_URL)?sslmode=disable" up
+	@echo "Migrations completed."
+
+migrate-down:
+	@echo "Running migrations..."
+	migrate -path ./migrations -database "$(DATABASE_URL)?sslmode=disable" down
+	@echo "Migrations completed."

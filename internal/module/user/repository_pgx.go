@@ -92,3 +92,10 @@ func (r *sqlRepo) ExistsByUUID(ctx context.Context, uuid string) (bool, error) {
 	}
 	return exists, nil
 }
+func (r *sqlRepo) DeleteByUUID(ctx context.Context, uuid string) (bool, error) {
+	query := `DELETE FROM users WHERE id = $1`
+	if _, err := r.db.Exec(ctx, query, uuid); err != nil {
+		return false, err
+	}
+	return true, nil
+}

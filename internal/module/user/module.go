@@ -8,4 +8,5 @@ var Module = fx.Module("account",
 
 	fx.Provide(NewService),
 	fx.Provide(NewRepository),
+	fx.Provide(NewEventPublisher),
 )

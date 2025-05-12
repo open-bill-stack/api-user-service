@@ -10,4 +10,5 @@ type Repository interface {
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 	ExistsByEmail(ctx context.Context, email string) (bool, error)
 	ExistsByUUID(ctx context.Context, uuid string) (bool, error)
+	DeleteByUUID(ctx context.Context, uuid string) (bool, error)
 }

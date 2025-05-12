@@ -20,6 +20,9 @@ type AppConfig struct {
 type DatabaseConfig struct {
 	Url string `mapstructure:"DATABASE_URL"`
 }
+type AMQPConfig struct {
+	Url string `mapstructure:"AMQP_URL"`
+}
 
 type JWTConfig struct {
 	PrivateKeyBase64 string `mapstructure:"JWT_PRIVATE_KEY_BASE64"`
@@ -33,6 +36,7 @@ type Config struct {
 	App      *AppConfig
 	Database *DatabaseConfig
 	JWT      *JWTConfig
+	AMQP     *AMQPConfig
 }
 
 func newAppConfig(cmd *cobra.Command) (*AppConfig, error) {
@@ -94,26 +98,51 @@ func newDatabaseConfig() (*DatabaseConfig, error) {
 	return &cfg, nil
 }
 
-func newJWTConfig() (cfg *JWTConfig, err error) {
-	databaseViper := viper.New()
+func newAMQPConfig() (cfg *AMQPConfig, err error) {
+	cfgViper := viper.New()
 
 	for _, v := range os.Environ() {
 		pair := strings.SplitN(v, "=", 2)
-		databaseViper.SetDefault(pair[0], pair[1])
+		cfgViper.SetDefault(pair[0], pair[1])
 	}
 
 	for key, value := range viper.AllSettings() {
-		databaseViper.Set(key, value)
+		cfgViper.Set(key, value)
 	}
-	databaseViper.AutomaticEnv()
-	databaseViper.SetConfigName(".env")
-	databaseViper.SetConfigType("env")
-	databaseViper.AddConfigPath(".")
+	cfgViper.AutomaticEnv()
+	cfgViper.SetConfigName(".env")
+	cfgViper.SetConfigType("env")
+	cfgViper.AddConfigPath(".")
 
-	if err := databaseViper.ReadInConfig(); err != nil {
+	if err := cfgViper.ReadInConfig(); err != nil {
 	}
 
-	if err := databaseViper.Unmarshal(&cfg); err != nil {
+	if err := cfgViper.Unmarshal(&cfg); err != nil {
+		return nil, fmt.Errorf("не вдалося розпарсити конфігурацію: %v", err)
+	}
+	return
+}
+
+func newJWTConfig() (cfg *JWTConfig, err error) {
+	cfgViper := viper.New()
+
+	for _, v := range os.Environ() {
+		pair := strings.SplitN(v, "=", 2)
+		cfgViper.SetDefault(pair[0], pair[1])
+	}
+
+	for key, value := range viper.AllSettings() {
+		cfgViper.Set(key, value)
+	}
+	cfgViper.AutomaticEnv()
+	cfgViper.SetConfigName(".env")
+	cfgViper.SetConfigType("env")
+	cfgViper.AddConfigPath(".")
+
+	if err := cfgViper.ReadInConfig(); err != nil {
+	}
+
+	if err := cfgViper.Unmarshal(&cfg); err != nil {
 		return nil, fmt.Errorf("не вдалося розпарсити конфігурацію: %v", err)
 	}
 
@@ -145,6 +174,11 @@ func newService(cmd *cobra.Command) (*Config, error) {
 		return nil, err
 	}
 
+	amqpConfig, err := newAMQPConfig()
+	if err != nil {
+		return nil, err
+	}
+
 	jwtConfig, err := newJWTConfig()
 	if err != nil {
 		return nil, err
@@ -154,6 +188,7 @@ func newService(cmd *cobra.Command) (*Config, error) {
 		App:      appConfig,
 		Database: databaseConfig,
 		JWT:      jwtConfig,
+		AMQP:     amqpConfig,
 	}, nil
 
 }

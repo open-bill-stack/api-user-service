@@ -4,6 +4,7 @@ import (
 	"api-user-service/internal/service/config"
 	"api-user-service/internal/service/grpc/router"
 	"context"
+	"errors"
 	"fmt"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
@@ -11,6 +12,7 @@ import (
 	"google.golang.org/grpc/reflection"
 	"log"
 	"net"
+	"strings"
 )
 
 type ParamsRun struct {
@@ -57,8 +59,10 @@ func RunGrpcApp(lc fx.Lifecycle, p ParamsRun) {
 			}
 			go func() {
 				p.Log.Debug("starting gRPC server")
-				if err := (*p.GrpcApp).Serve(*p.GrpcListener); err != nil {
-					p.Log.Panic("Error starting GRPC server:", zap.Error(err))
+				if err := (*p.GrpcApp).Serve(*p.GrpcListener); err != nil && !errors.Is(err, net.ErrClosed) {
+					if strings.Contains(err.Error(), "use of closed network connection") {
+						p.Log.Error("GRPC server stopped with error", zap.Error(err))
+					}
 				}
 			}()
 			p.Log.Info(fmt.Sprintf("GRPC server started on:%d", p.Config.App.GrpcPort))
