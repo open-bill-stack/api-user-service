@@ -3,12 +3,24 @@ package user
 import (
 	"context"
 	"github.com/georgysavva/scany/v2/pgxscan"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type sqlRepo struct {
 	db *pgxpool.Pool
+}
+
+func (r *sqlRepo) GetUserByID(ctx context.Context, id uuid.UUID) (*User, error) {
+	var user User
+	query := `SELECT id, email, phone, is_email_verified, is_phone_verified, created_at, updated_at
+			  FROM users
+			  WHERE id = $1`
+	if err := pgxscan.Get(ctx, r.db, &user, query, id); err != nil {
+		return nil, err
+	}
+	return &user, nil
 }
 
 func NewRepository(db *pgxpool.Pool) Repository {
@@ -83,4 +95,28 @@ func (r *sqlRepo) ExistsByEmail(ctx context.Context, email string) (bool, error)
 		return false, err
 	}
 	return exists, nil
+}
+func (r *sqlRepo) ExistsByID(ctx context.Context, uuid uuid.UUID) (bool, error) {
+	var exists bool
+	query := `SELECT EXISTS(SELECT 1 FROM users WHERE id = $1)`
+	if err := r.db.QueryRow(ctx, query, uuid).Scan(&exists); err != nil {
+		return false, err
+	}
+	return exists, nil
+}
+func (r *sqlRepo) DeleteByID(ctx context.Context, uuid uuid.UUID) (bool, error) {
+	query := `DELETE FROM users WHERE id = $1`
+	if _, err := r.db.Exec(ctx, query, uuid); err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+func (r *sqlRepo) List(ctx context.Context) ([]User, error) {
+	var users []User
+	query := `SELECT id, email, phone, is_email_verified, is_phone_verified, created_at, updated_at FROM users`
+	if err := pgxscan.Select(ctx, r.db, &users, query); err != nil {
+		return nil, err
+	}
+	return users, nil
 }

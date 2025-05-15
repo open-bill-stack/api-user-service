@@ -21,5 +21,5 @@ type Params struct {
 type Result struct {
 	fx.Out
 
-	Router httpRouter.Router `group:"routes"`
+	Router httpRouter.Router `group:"httpRoutes"`
 }

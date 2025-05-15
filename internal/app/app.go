@@ -10,6 +10,7 @@ import (
 	"api-user-service/internal/service/grpc"
 	"api-user-service/internal/service/jwt"
 	"api-user-service/internal/service/logger"
+	"api-user-service/internal/service/rabbitmq"
 	"github.com/spf13/cobra"
 	"go.uber.org/fx"
 )
@@ -22,6 +23,7 @@ func Run(cmd *cobra.Command) {
 		config.Module,
 		database.Module,
 		jwt.Module,
+		rabbitmq.Module,
 
 		// global middleware
 		middleware.Module,

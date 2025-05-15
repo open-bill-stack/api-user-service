@@ -5,5 +5,5 @@ import (
 )
 
 type Router interface {
-	Register(app *grpc.Server)
+	Register(*grpc.Server)
 }
