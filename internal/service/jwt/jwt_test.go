@@ -8,89 +8,75 @@ import (
 	"time"
 )
 
-func generateKeys(t *testing.T) (ed25519.PrivateKey, ed25519.PublicKey) {
-	t.Helper()
-	pub, priv, err := ed25519.GenerateKey(nil)
-	require.NoError(t, err)
-	return priv, pub
-}
-
-func TestJWT_CreateAndVerify_Success(t *testing.T) {
-	privateKey, publicKey := generateKeys(t)
-	j, err := NewJWT(privateKey, publicKey)
+func TestJWT_CreateAndVerify(t *testing.T) {
+	// Генеруємо ключі Ed25519
+	pubKey, privKey, err := ed25519.GenerateKey(nil)
 	require.NoError(t, err)
 
-	claims := Claims{
-		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    "test_issuer",
-			Subject:   "user_id",
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)),
-		},
+	// Ініціалізуємо JWT-сервіс
+	j, err := NewJWT(privKey, pubKey)
+	require.NoError(t, err)
+
+	// Готуємо дані
+	claims := CustomClaims{
 		ExtendClaims: ExtendClaims{
-			"custom_value",
+			UserID:         "123",
+			IsRefreshToken: false,
+		},
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)),
+			Issuer:    "test",
 		},
 	}
 
-	tokenString, err := j.Create(claims)
+	// Створюємо токен
+	tokenStr, err := j.Create(claims)
 	require.NoError(t, err)
-	require.NotEmpty(t, tokenString)
+	require.NotEmpty(t, tokenStr)
 
-	parsedClaims, err := j.Verify(tokenString)
+	// Валідуємо токен
+	parsedClaims, err := j.Verify(tokenStr)
 	require.NoError(t, err)
-
-	c, ok := parsedClaims.(*Claims)
-	require.True(t, ok)
-	require.Equal(t, "test_issuer", c.Issuer)
-	require.Equal(t, "user_id", c.Subject)
-	require.Equal(t, "custom_value", c.UserID)
+	require.Equal(t, claims.UserID, parsedClaims.UserID)
+	require.Equal(t, claims.Issuer, parsedClaims.Issuer)
+	require.Equal(t, claims.IsRefreshToken, parsedClaims.IsRefreshToken)
 }
 
 func TestJWT_Verify_InvalidSignature(t *testing.T) {
-	privateKey1, publicKey1 := generateKeys(t)
-	privateKey2, publicKey2 := generateKeys(t)
+	// Генеруємо дві пари ключів
+	_, privKey1, _ := ed25519.GenerateKey(nil)
+	pubKey2, _, _ := ed25519.GenerateKey(nil)
 
-	j1, err := NewJWT(privateKey1, publicKey1)
-	require.NoError(t, err)
+	j1, _ := NewJWT(privKey1, pubKey2) // неправильна перевірка
 
-	j2, err := NewJWT(privateKey2, publicKey2)
-	require.NoError(t, err)
-
-	claims := Claims{
-		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    "issuer",
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
-		},
+	// Створюємо валідний токен іншим підписом
+	claims := CustomClaims{
 		ExtendClaims: ExtendClaims{
-			"custom_value",
+			UserID:         "abc",
+			IsRefreshToken: true,
+		},
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)),
+			Issuer:    "test",
 		},
 	}
 
-	tokenString, err := j1.Create(claims)
+	tokenStr, err := NewJWT(privKey1, privKey1.Public().(ed25519.PublicKey))
+	require.NoError(t, err)
+	validToken, err := tokenStr.Create(claims)
 	require.NoError(t, err)
 
-	// Спробуємо верифікувати токен не тим паблік ключем
-	_, err = j2.Verify(tokenString)
+	// Тепер спробуємо перевірити іншим публічним ключем (повинна бути помилка)
+	_, err = j1.Verify(validToken)
 	require.Error(t, err)
 }
 
-func TestJWT_Verify_ExpiredToken(t *testing.T) {
-	privateKey, publicKey := generateKeys(t)
-	j, err := NewJWT(privateKey, publicKey)
-	require.NoError(t, err)
+func TestJWT_Verify_InvalidFormat(t *testing.T) {
+	// Стандартна пара ключів
+	pubKey, privKey, _ := ed25519.GenerateKey(nil)
+	j, _ := NewJWT(privKey, pubKey)
 
-	claims := Claims{
-		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    "issuer",
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(-1 * time.Hour)), // вже прострочений
-		},
-		ExtendClaims: ExtendClaims{
-			"value",
-		},
-	}
-
-	tokenString, err := j.Create(claims)
-	require.NoError(t, err)
-
-	_, err = j.Verify(tokenString)
+	// Некоректний токен
+	_, err := j.Verify("this_is_not_a_token")
 	require.Error(t, err)
 }

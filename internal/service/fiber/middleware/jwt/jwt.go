@@ -9,6 +9,11 @@ type CheckJWTMiddleware struct {
 	cfg *Config
 }
 
+const (
+	UserIDKey         string = "userID"
+	IsRefreshTokenKey bool   = false
+)
+
 func NewCheckJWTMiddleware(config ...Config) *CheckJWTMiddleware {
 	cfg := configDefault(config...)
 	return &CheckJWTMiddleware{&cfg}
@@ -27,7 +32,12 @@ func (h *CheckJWTMiddleware) GetHandler() fiber.Handler {
 
 		token := auth[7:]
 
-		h.cfg.Validator(token)
-		return c.Next()
+		if claims, status := h.cfg.Validator(token); status {
+			c.Locals(UserIDKey, claims.UserID)
+			c.Locals(IsRefreshTokenKey, claims.IsRefreshToken)
+			return c.Next()
+		}
+
+		return h.cfg.Unauthorized(c)
 	}
 }
