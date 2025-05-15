@@ -1,8 +1,9 @@
 package user
 
 import (
-	pb "api-user-service/internal/module/user/grpc"
+	pb "api-user-service/internal/service/grpc/proto/user/v1"
 	"context"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -30,7 +31,11 @@ func (h *GrpcHandle) Register(app *grpc.Server) {
 }
 
 func (h *GrpcHandle) ExistsByID(ctx context.Context, data *pb.ExistsByIDRequest) (*pb.ExistsByIDResponse, error) {
-	exists, err := h.service.ExistsByUUID(ctx, data.UserId)
+	parse, err := uuid.Parse(data.UserId)
+	if err != nil {
+		return nil, err
+	}
+	exists, err := h.service.ExistsByID(ctx, parse)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Error checking uuid: %v", err)
 	}

@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        v3.19.6
-// source: internal/module/user/grpc/user.proto
+// source: user/v1/user.proto
 
-package grpc
+package protoc
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -31,7 +31,7 @@ type ExistsByIDRequest struct {
 
 func (x *ExistsByIDRequest) Reset() {
 	*x = ExistsByIDRequest{}
-	mi := &file_internal_module_user_grpc_user_proto_msgTypes[0]
+	mi := &file_user_v1_user_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -43,7 +43,7 @@ func (x *ExistsByIDRequest) String() string {
 func (*ExistsByIDRequest) ProtoMessage() {}
 
 func (x *ExistsByIDRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_module_user_grpc_user_proto_msgTypes[0]
+	mi := &file_user_v1_user_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -56,7 +56,7 @@ func (x *ExistsByIDRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExistsByIDRequest.ProtoReflect.Descriptor instead.
 func (*ExistsByIDRequest) Descriptor() ([]byte, []int) {
-	return file_internal_module_user_grpc_user_proto_rawDescGZIP(), []int{0}
+	return file_user_v1_user_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *ExistsByIDRequest) GetUserId() string {
@@ -76,7 +76,7 @@ type ExistsByIDResponse struct {
 
 func (x *ExistsByIDResponse) Reset() {
 	*x = ExistsByIDResponse{}
-	mi := &file_internal_module_user_grpc_user_proto_msgTypes[1]
+	mi := &file_user_v1_user_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -88,7 +88,7 @@ func (x *ExistsByIDResponse) String() string {
 func (*ExistsByIDResponse) ProtoMessage() {}
 
 func (x *ExistsByIDResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_module_user_grpc_user_proto_msgTypes[1]
+	mi := &file_user_v1_user_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -101,7 +101,7 @@ func (x *ExistsByIDResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExistsByIDResponse.ProtoReflect.Descriptor instead.
 func (*ExistsByIDResponse) Descriptor() ([]byte, []int) {
-	return file_internal_module_user_grpc_user_proto_rawDescGZIP(), []int{1}
+	return file_user_v1_user_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *ExistsByIDResponse) GetExists() bool {
@@ -111,39 +111,39 @@ func (x *ExistsByIDResponse) GetExists() bool {
 	return false
 }
 
-var File_internal_module_user_grpc_user_proto protoreflect.FileDescriptor
+var File_user_v1_user_proto protoreflect.FileDescriptor
 
-const file_internal_module_user_grpc_user_proto_rawDesc = "" +
+const file_user_v1_user_proto_rawDesc = "" +
 	"\n" +
-	"$internal/module/user/grpc/user.proto\x12\x04user\",\n" +
+	"\x12user/v1/user.proto\x12\auser.v1\",\n" +
 	"\x11ExistsByIDRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\",\n" +
 	"\x12ExistsByIDResponse\x12\x16\n" +
-	"\x06exists\x18\x01 \x01(\bR\x06exists2N\n" +
-	"\vUserService\x12?\n" +
+	"\x06exists\x18\x01 \x01(\bR\x06exists2T\n" +
+	"\vUserService\x12E\n" +
 	"\n" +
-	"ExistsByID\x12\x17.user.ExistsByIDRequest\x1a\x18.user.ExistsByIDResponseB,Z*api-user-service/internal/module/user/grpcb\x06proto3"
+	"ExistsByID\x12\x1a.user.v1.ExistsByIDRequest\x1a\x1b.user.v1.ExistsByIDResponseB/Z-api-user-service/internal/service/grpc/protocb\x06proto3"
 
 var (
-	file_internal_module_user_grpc_user_proto_rawDescOnce sync.Once
-	file_internal_module_user_grpc_user_proto_rawDescData []byte
+	file_user_v1_user_proto_rawDescOnce sync.Once
+	file_user_v1_user_proto_rawDescData []byte
 )
 
-func file_internal_module_user_grpc_user_proto_rawDescGZIP() []byte {
-	file_internal_module_user_grpc_user_proto_rawDescOnce.Do(func() {
-		file_internal_module_user_grpc_user_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_internal_module_user_grpc_user_proto_rawDesc), len(file_internal_module_user_grpc_user_proto_rawDesc)))
+func file_user_v1_user_proto_rawDescGZIP() []byte {
+	file_user_v1_user_proto_rawDescOnce.Do(func() {
+		file_user_v1_user_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_user_v1_user_proto_rawDesc), len(file_user_v1_user_proto_rawDesc)))
 	})
-	return file_internal_module_user_grpc_user_proto_rawDescData
+	return file_user_v1_user_proto_rawDescData
 }
 
-var file_internal_module_user_grpc_user_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_internal_module_user_grpc_user_proto_goTypes = []any{
-	(*ExistsByIDRequest)(nil),  // 0: user.ExistsByIDRequest
-	(*ExistsByIDResponse)(nil), // 1: user.ExistsByIDResponse
+var file_user_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_user_v1_user_proto_goTypes = []any{
+	(*ExistsByIDRequest)(nil),  // 0: user.v1.ExistsByIDRequest
+	(*ExistsByIDResponse)(nil), // 1: user.v1.ExistsByIDResponse
 }
-var file_internal_module_user_grpc_user_proto_depIdxs = []int32{
-	0, // 0: user.UserService.ExistsByID:input_type -> user.ExistsByIDRequest
-	1, // 1: user.UserService.ExistsByID:output_type -> user.ExistsByIDResponse
+var file_user_v1_user_proto_depIdxs = []int32{
+	0, // 0: user.v1.UserService.ExistsByID:input_type -> user.v1.ExistsByIDRequest
+	1, // 1: user.v1.UserService.ExistsByID:output_type -> user.v1.ExistsByIDResponse
 	1, // [1:2] is the sub-list for method output_type
 	0, // [0:1] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
@@ -151,26 +151,26 @@ var file_internal_module_user_grpc_user_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_internal_module_user_grpc_user_proto_init() }
-func file_internal_module_user_grpc_user_proto_init() {
-	if File_internal_module_user_grpc_user_proto != nil {
+func init() { file_user_v1_user_proto_init() }
+func file_user_v1_user_proto_init() {
+	if File_user_v1_user_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_internal_module_user_grpc_user_proto_rawDesc), len(file_internal_module_user_grpc_user_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_v1_user_proto_rawDesc), len(file_user_v1_user_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_internal_module_user_grpc_user_proto_goTypes,
-		DependencyIndexes: file_internal_module_user_grpc_user_proto_depIdxs,
-		MessageInfos:      file_internal_module_user_grpc_user_proto_msgTypes,
+		GoTypes:           file_user_v1_user_proto_goTypes,
+		DependencyIndexes: file_user_v1_user_proto_depIdxs,
+		MessageInfos:      file_user_v1_user_proto_msgTypes,
 	}.Build()
-	File_internal_module_user_grpc_user_proto = out.File
-	file_internal_module_user_grpc_user_proto_goTypes = nil
-	file_internal_module_user_grpc_user_proto_depIdxs = nil
+	File_user_v1_user_proto = out.File
+	file_user_v1_user_proto_goTypes = nil
+	file_user_v1_user_proto_depIdxs = nil
 }

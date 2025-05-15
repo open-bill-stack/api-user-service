@@ -6,6 +6,7 @@ import (
 	"github.com/alexedwards/argon2id"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
@@ -24,17 +25,64 @@ func NewHttpHandler(p Params) (HttpResult, error) {
 }
 
 func (h *HttpHandle) Register(app *fiber.App) {
-	app.Post("/user", h.CreateUser)
 
 	group := app.Group("/user")
 
-	group.Get("", h.GetUser)
-	group.Patch("", h.UpdateUser)
-	group.Delete("", h.DeleteUser)
+	app.Post("", h.CreateUser)
+	group.Get("", h.ListUsers)
+	group.Get(":id", h.GetUser)
+	group.Patch(":id", h.UpdateUser)
+	group.Delete(":id", h.DeleteUser)
 }
 
+func (h *HttpHandle) ListUsers(c *fiber.Ctx) error {
+	users, err := h.service.List(c.Context())
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+	var structUsers = make([]structure.ResponseUser, 0)
+	for _, user := range users {
+		structUsers = append(structUsers, structure.ResponseUser{
+			ID:              user.ID.String(),
+			Email:           user.Email,
+			Phone:           user.Phone,
+			IsEmailVerified: user.IsEmailVerified,
+			IsPhoneVerified: user.IsPhoneVerified,
+			CreatedAt:       user.CreatedAt.String(),
+			UpdatedAt:       user.UpdatedAt.String(),
+		})
+	}
+	return c.Status(fiber.StatusOK).JSON(structUsers)
+
+}
 func (h *HttpHandle) GetUser(c *fiber.Ctx) error {
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "OK"})
+	id := c.Params("id")
+	var tariffID, errParse = uuid.Parse(id)
+	if errParse != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid ID format",
+		})
+	}
+	user, err := h.service.GetUserByEmail(c.Context(), tariffID.String())
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+	if user == nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{})
+	}
+	return c.Status(fiber.StatusOK).JSON(structure.ResponseUser{
+		ID:              user.ID.String(),
+		Email:           user.Email,
+		Phone:           user.Phone,
+		IsEmailVerified: user.IsEmailVerified,
+		IsPhoneVerified: user.IsPhoneVerified,
+		CreatedAt:       user.CreatedAt.String(),
+		UpdatedAt:       user.UpdatedAt.String(),
+	})
 }
 func (h *HttpHandle) UpdateUser(c *fiber.Ctx) error {
 	return nil
@@ -85,17 +133,20 @@ func (h *HttpHandle) CreateUser(c *fiber.Ctx) error {
 }
 
 func (h *HttpHandle) DeleteUser(c *fiber.Ctx) error {
-	var req structure.UserRequest
+	id := c.Params("id")
+	var userID, errParse = uuid.Parse(id)
 	// Парсимо JSON з тіла запиту
-	if err := c.BodyParser(&req); err != nil {
+	if errParse != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid request body",
+			"error": "Invalid ID format",
 		})
 	}
 
-	status, err := h.service.ExistsByUUID(c.Context(), req.UUID)
+	status, err := h.service.ExistsByID(c.Context(), userID)
 	if err != nil {
-		return err
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
 	}
 	if !status {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -103,7 +154,7 @@ func (h *HttpHandle) DeleteUser(c *fiber.Ctx) error {
 		})
 	}
 
-	status, err = h.service.DeleteByUUID(c.Context(), req.UUID)
+	status, err = h.service.DeleteByID(c.Context(), userID)
 	if err != nil {
 		return err
 	}

@@ -22,13 +22,7 @@ type ParamsChannel struct {
 	Config   *config.Config
 	AQMPConn *amqp.Connection
 }
-type ParamsQueue struct {
-	fx.In
 
-	Log         *zap.Logger
-	Config      *config.Config
-	AQMPChannel *amqp.Channel
-}
 type ParamsAMQPRun struct {
 	fx.In
 
@@ -51,10 +45,6 @@ type ResultChannel struct {
 	fx.Out
 	AQMPChannel *amqp.Channel
 }
-type ResultQueue struct {
-	fx.Out
-	AQMPQueue *amqp.Queue
-}
 
 func NewAMQP(p ParamsAMQP) (ResultAMQP, error) {
 	conn, err := amqp.Dial(p.Config.AMQP.Url)
@@ -73,24 +63,6 @@ func NewChannel(p ParamsChannel) (ResultChannel, error) {
 
 	return ResultChannel{
 		AQMPChannel: ch,
-	}, nil
-}
-
-func NewQueue(p ParamsQueue) (ResultQueue, error) {
-	q, err := p.AQMPChannel.QueueDeclare(
-		"user", // name
-		false,  // durable
-		false,  // delete when unused
-		false,  // exclusive
-		false,  // no-wait
-		nil,    // arguments
-	)
-	if err != nil {
-		log.Panicf("Failed to create queue to RabbitMQ: %s", err)
-	}
-
-	return ResultQueue{
-		AQMPQueue: &q,
 	}, nil
 }
 
@@ -119,7 +91,6 @@ var Module = fx.Module(
 	fx.Provide(
 		NewAMQP,
 		NewChannel,
-		NewQueue,
 	),
 	fx.Invoke(
 		RunAMQPConnection,

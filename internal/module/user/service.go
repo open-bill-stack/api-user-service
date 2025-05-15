@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"github.com/google/uuid"
 )
 
 type Service struct {
@@ -31,15 +32,23 @@ func (s *Service) Create(ctx context.Context, input CreateUser) (*User, error) {
 func (s *Service) ExistsByEmail(ctx context.Context, email string) (bool, error) {
 	return s.repo.ExistsByEmail(ctx, email)
 }
-func (s *Service) ExistsByUUID(ctx context.Context, uuid string) (bool, error) {
-	return s.repo.ExistsByUUID(ctx, uuid)
+func (s *Service) ExistsByID(ctx context.Context, id uuid.UUID) (bool, error) {
+	return s.repo.ExistsByID(ctx, id)
 }
-func (s *Service) DeleteByUUID(ctx context.Context, uuid string) (bool, error) {
-	if status, err := s.repo.DeleteByUUID(ctx, uuid); err != nil {
+func (s *Service) DeleteByID(ctx context.Context, id uuid.UUID) (bool, error) {
+	if status, err := s.repo.DeleteByID(ctx, id); err != nil {
 		return status, err
 	}
-	if err := s.eventPublisher.PublishUserDelete(ctx, uuid); err != nil {
+	if err := s.eventPublisher.PublishUserDelete(ctx, id); err != nil {
 		return false, err
 	}
 	return true, nil
+}
+
+func (s *Service) List(ctx context.Context) ([]User, error) {
+	return s.repo.List(ctx)
+}
+
+func (s *Service) GetUserByID(ctx context.Context, id uuid.UUID) (*User, error) {
+	return s.repo.GetUserByID(ctx, id)
 }
