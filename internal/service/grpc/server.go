@@ -15,7 +15,13 @@ import (
 	"strings"
 )
 
-type ParamsRun struct {
+type ParamsServer struct {
+	fx.In
+
+	Log    *zap.Logger
+	Config *config.Config
+}
+type ParamsServerRun struct {
 	fx.In
 
 	GrpcApp      *grpc.Server
@@ -24,19 +30,13 @@ type ParamsRun struct {
 	Config       *config.Config
 	Router       []router.Router `group:"grpcRoutes"`
 }
-type Params struct {
-	fx.In
-
-	Log    *zap.Logger
-	Config *config.Config
-}
-type Result struct {
+type ResultServer struct {
 	fx.Out
 	GrpcApp      *grpc.Server
 	GrpcListener *net.Listener
 }
 
-func NewGrpcApp(p Params) (Result, error) {
+func NewGrpcServerApp(p ParamsServer) (ResultServer, error) {
 	grpcServer := grpc.NewServer()
 	reflection.Register(grpcServer)
 
@@ -45,13 +45,13 @@ func NewGrpcApp(p Params) (Result, error) {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	return Result{
+	return ResultServer{
 		GrpcApp:      grpcServer,
 		GrpcListener: &grpcListener,
 	}, nil
 }
 
-func RunGrpcApp(lc fx.Lifecycle, p ParamsRun) {
+func RunGrpcServerApp(lc fx.Lifecycle, p ParamsServerRun) {
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			for _, r := range p.Router {
@@ -77,12 +77,12 @@ func RunGrpcApp(lc fx.Lifecycle, p ParamsRun) {
 
 }
 
-var Module = fx.Module(
-	"GrpcAppModule",
+var ModuleServer = fx.Module(
+	"GrpcServerAppModule",
 	fx.Provide(
-		NewGrpcApp,
+		NewGrpcServerApp,
 	),
 	fx.Invoke(
-		RunGrpcApp,
+		RunGrpcServerApp,
 	),
 )
