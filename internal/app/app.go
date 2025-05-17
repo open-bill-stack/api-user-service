@@ -36,6 +36,6 @@ func Run(cmd *cobra.Command) {
 		fiber.Module,
 
 		// grpc
-		grpc.Module,
+		grpc.ModuleServer,
 	).Run()
 }

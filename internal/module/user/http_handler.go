@@ -28,7 +28,7 @@ func (h *HttpHandle) Register(app *fiber.App) {
 
 	group := app.Group("/user")
 
-	app.Post("", h.CreateUser)
+	group.Post("", h.CreateUser)
 	group.Get("", h.ListUsers)
 	group.Get(":id", h.GetUser)
 	group.Patch(":id", h.UpdateUser)
