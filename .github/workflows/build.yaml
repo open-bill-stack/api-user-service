@@ -31,7 +31,7 @@ jobs:
       group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event.workflow_call.workflow_file }}-test-dockerfile
       cancel-in-progress: true
     with:
-      RUNS_ON: self-hosted
+      RUNS_ON: ${{ vars.RUNS_OS }}
       HADOLINT_CHECK_ENABLE: true
 
   test-go:
