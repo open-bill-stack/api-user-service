@@ -1,5 +1,5 @@
 # BASE IMAGE
-FROM golang:1.24.3-alpine3.21 AS build-base
+FROM --platform=$BUILDPLATFORM golang:1.24.3-alpine3.21 AS build-base
 
 WORKDIR /code
 
@@ -15,16 +15,12 @@ RUN go mod download
 
 FROM go-deps AS build
 
-ARG ARCH=amd64
-ARG OS=linux
-
-ENV GOOS=$OS
-ENV GOARCH=$ARCH
-ENV CGO_ENABLED=0
+ARG TARGETOS
+ARG TARGETARCH
 
 COPY . .
 
-RUN go build -ldflags="-s -w" -o ./.build/api-user-service ./main.go
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -ldflags="-s -w" -o ./.build/api-user-service ./main.go
 
 FROM base AS prod
 

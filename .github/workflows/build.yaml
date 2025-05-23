@@ -48,13 +48,6 @@ jobs:
     needs: [ vars, test-dockerfile, test-go ]
     name: Build
     runs-on: self-hosted
-    strategy:
-      matrix:
-        arch:
-          - amd64
-          - arm64
-        os:
-          - linux
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -75,8 +68,8 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
-            type=sha,priority=1000,prefix=sha-,suffix=-app-${{ matrix.arch }}
-            type=raw,value=latest,priority=0,suffix=-app-${{ matrix.arch }},enable={{is_default_branch}}
+            type=sha,priority=1000,prefix=sha-,suffix=-app
+            type=raw,value=latest,priority=0,suffix=-app,enable={{is_default_branch}}
         env:
           DOCKER_METADATA_SHORT_SHA_LENGTH: 12
 
@@ -86,14 +79,11 @@ jobs:
           DOCKER_BUILD_SUMMARY: true
         with:
           context: .
-          platforms: ${{ matrix.os }}/${{ matrix.arch }}
+          platforms: linux/amd64,linux/arm64
           file: Dockerfile
           push: true
           provenance: false
           target: prod
-          build-args: |
-            ARCH=${{ matrix.arch }}
-            OS=${{ matrix.os }}
           tags: |
             ${{ steps.meta.outputs.tags }}
           cache-from: type=gha
