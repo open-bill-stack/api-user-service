@@ -1,5 +1,5 @@
 # BASE IMAGE
-FROM --platform=$BUILDPLATFORM golang:1.24.3-alpine3.21 AS build-base
+FROM --platform=$BUILDPLATFORM golang:1.24.11-alpine3.21 AS build-base
 
 WORKDIR /code
 
