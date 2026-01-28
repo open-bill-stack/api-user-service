@@ -3,7 +3,7 @@ FROM --platform=$BUILDPLATFORM golang:1.24.3-alpine3.21 AS build-base
 
 WORKDIR /code
 
-FROM alpine:3.21 AS base
+FROM alpine:3.21.6 AS base
 
 WORKDIR /usr/local/bin
 
